@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import LottieView from "lottie-react-native";
 import * as Location from "expo-location";
+import { GetCurrentWeather } from "../GetCurrentWeather/GetCurrentWeather";
 
 const data = [
   {
@@ -51,58 +52,20 @@ const data = [
   },
 ];
 
-const googleApiKey = "AIzaSyCgQGp-G9aXq4y5QKxz4yXccatCCFqrsMY"
 
-function CurrentWeather() {
+function HomePage() {
   const animation = useRef(null);
-  const [currentLocation, setCurrentLocation] = useState({
-    latitude: "",
-    longitude: "",
-  });
-  const [cityDetails, setCityDetails] = useState(null)
-  const [errorMsg, setErrorMsg] = useState(null);
 
-  if (errorMsg) {
-    Alert.alert("Permission", errorMsg, [
-      { text: "OK", onPress: () => console.warn("OK Pressed") },
-    ]);
-  }
+  //temperature from GetCurrentWeather
+  let { temperature, description, cityDetails } = useContext(GetCurrentWeather);
 
 
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({});
-
-      //setting google api key
-      Location.setGoogleApiKey(googleApiKey);
-
-      //get Region details
-      let regionName = await Location.reverseGeocodeAsync({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
-
-      //set region details
-      setCityDetails(regionName)
-
-      //set current location
-      setCurrentLocation({
-        ...currentLocation,
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
-    })();
-  }, []);
   return (
     <View style={styles.container}>
       <View style={{ alignItems: "center" }}>
-        <Text style={styles.location}>{!cityDetails ? "Loading" : JSON.stringify(cityDetails[0]["city"])}</Text>
+        <Text style={styles.location}>
+          {!cityDetails ? "Loading" : cityDetails[0]["city"]}
+        </Text>
         <Ionicons name="location-outline" size={18} color="white" />
       </View>
       <View
@@ -124,10 +87,12 @@ function CurrentWeather() {
           // Find more Lottie files at https://lottiefiles.com/featured
           source={require("../../assets/rainy.json")}
         />
-        <Text style={{ color: "white", fontSize: 30 }}>25°C</Text>
+        <Text style={{ color: "white", fontSize: 30 }}>{temperature}°C</Text>
       </View>
       <View style={{ justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ color: "white", fontSize: 24 }}>Mostly Cloudy</Text>
+        <Text style={{ color: "white", fontSize: 24 }}>
+          {!description ? null : description.toLowerCase().replace(/\b(\w)/g, (s) => s.toUpperCase())}
+        </Text>
       </View>
       <View style={{ marginTop: 40 }}>
         <Text style={{ color: "white", fontSize: 16, marginLeft: 10 }}>
@@ -172,7 +137,7 @@ function CurrentWeather() {
   );
 }
 
-export default CurrentWeather;
+export default HomePage;
 
 const styles = StyleSheet.create({
   container: {

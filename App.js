@@ -1,11 +1,14 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import CurrentWeather from './src/screens/CurrentWeather';
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, View } from "react-native";
+import HomePage from "./src/screens/HomePage";
+import { CurrentWeatherProvider } from "./src/GetCurrentWeather/GetCurrentWeather";
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <CurrentWeather/>
+      <CurrentWeatherProvider>
+        <HomePage />
+      </CurrentWeatherProvider>
     </View>
   );
 }
@@ -13,6 +16,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
 });
